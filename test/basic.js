@@ -49,6 +49,18 @@ var checkFilesEqual = function (file1, file2, cb) {
 
 
 describe('Basic Upload Cases', function() {
+  var server = null;
+
+  beforeEach(function (done){
+    server = null;
+    done();
+  });
+
+  afterEach(function (done) {
+    if (server) server.close();
+    done();
+  });
+
   it('upload one small file', function (done) {
     var app = express();
     app.use(bodyParser.json());
@@ -59,12 +71,11 @@ describe('Basic Upload Cases', function() {
       next();
     });
 
-    var server = app.listen(3000, function () {
+    server = app.listen(3000, function () {
       transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile'}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
-          server.close();
           done();
         });
       });
@@ -82,12 +93,11 @@ describe('Basic Upload Cases', function() {
       next();
     });
 
-    var server = app.listen(3000, function () {
+    server = app.listen(3000, function () {
       transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
-          server.close();
           done();
         });
       });
@@ -105,18 +115,37 @@ describe('Basic Upload Cases', function() {
       next();
     });
 
-    var server = app.listen(3000, function () {
+    server = app.listen(3000, function () {
       transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
-          server.close();
           done();
         });
       });
     });
   });
-/*
+
+
+  it('failAfter options should work', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+
+    app.post('/upload', transfer.middleware({maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
+      res.status(200);
+      next();
+    });
+
+    server = app.listen(3000, function () {
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 3}, function (err) {
+        // make sure we hit an error
+        assert.ok(err);
+        done();
+      });
+    });
+  });
+
 
   it('check for chunk expiry', function (done) {
     var app = express();
@@ -129,15 +158,29 @@ describe('Basic Upload Cases', function() {
       next();
     });
 
-    var server = app.listen(3000, function () {
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1}, function (err) {
-        assert.ok(!err);
-        checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
-          assert.ok(equal);
-          server.close();
+    server = app.listen(3000, function () {
+      // Because the upload will fail after 3 chunks get uploaded, those chunks will be orphaned on the server, and the server should be able to clean them up
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 3}, function (err) {
+        setTimeout(function () {
+          var pieceMap = transfer.getPieceMap();
+          Object.keys(pieceMap).forEach(function (uploadID) {
+            Object.keys(pieceMap[uploadID]).forEach(function (chunkNum) {
+              var exists = false;
+              try {
+                stats = fs.statSync(pieceMap[uploadID][chunkNum].path);
+                //If we make it here, it means the file exists, so we need to fail.
+                exists = true;
+              }
+              catch (e) {
+              }
+              if (exists) {
+                assert.ok(false, `${pieceMap[uploadID][chunkNum].path} exists, but it should have been deleted`);
+              }
+            });
+          });
           done();
-        });
+        }, 30);
       });
     });
-  });*/
+  });
 });
