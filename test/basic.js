@@ -110,7 +110,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    app.post('/upload', transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
+    app.post('/upload', transfer.middleware({maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
       res.status(200);
       next();
     });
@@ -153,30 +153,28 @@ describe('Basic Upload Cases', function() {
     var testfile = uuid.v4();
 
     // Chunks now expire in 10 ms
-    app.post('/upload', transfer.middleware({chunkExpiry: 0.01, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
+    app.post('/upload', transfer.middleware({chunkExpiry: 10, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
       res.status(200);
       next();
     });
 
     server = app.listen(3000, function () {
       // Because the upload will fail after 3 chunks get uploaded, those chunks will be orphaned on the server, and the server should be able to clean them up
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 3}, function (err) {
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 3}, function (err, uploadUUID) {
         setTimeout(function () {
           var pieceMap = transfer.getPieceMap();
-          Object.keys(pieceMap).forEach(function (uploadID) {
-            Object.keys(pieceMap[uploadID]).forEach(function (chunkNum) {
-              var exists = false;
-              try {
-                stats = fs.statSync(pieceMap[uploadID][chunkNum].path);
-                //If we make it here, it means the file exists, so we need to fail.
-                exists = true;
-              }
-              catch (e) {
-              }
-              if (exists) {
-                assert.ok(false, `${pieceMap[uploadID][chunkNum].path} exists, but it should have been deleted`);
-              }
-            });
+          Object.keys(pieceMap[uploadUUID].pieces).forEach(function (chunkNum) {
+            var exists = false;
+            try {
+              stats = fs.statSync(pieceMap[uploadUUID].pieces[chunkNum].path);
+              //If we make it here, it means the file exists, so we need to fail.
+              exists = true;
+            }
+            catch (e) {
+            }
+            if (exists) {
+              assert.ok(false, `${pieceMap[uploadUUID].pieces[chunkNum].path} exists, but it should have been deleted`);
+            }
           });
           done();
         }, 30);
