@@ -1,0 +1,38 @@
+{
+  "name": "better-transfer",
+  "version": "1.0.0",
+  "description": "Easier file transfer between node servers",
+  "main": "lib/transfer.js",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/diamondio/better-transfer.git"
+  },
+  "keywords": [
+    "server",
+    "file",
+    "transfer",
+    "best",
+    "better"
+  ],
+  "author": "Diamond Inc. <ops@diamond.io>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/diamondio/better-transfer/issues"
+  },
+  "homepage": "https://github.com/diamondio/better-transfer",
+  "devDependencies": {},
+  "dependencies": {
+    "async": "^1.5.2",
+    "better-queue": "^3.3.0",
+    "body-parser": "^1.15.0",
+    "concat-files": "^0.1.0",
+    "express": "^4.13.4",
+    "extend": "^3.0.0",
+    "fs-extra": "^0.26.7",
+    "longjohn": "^0.2.11",
+    "md5-file": "^2.0.4",
+    "multer": "^1.1.0",
+    "node-uuid": "^1.4.7",
+    "request": "^2.69.0"
+  }
+}
