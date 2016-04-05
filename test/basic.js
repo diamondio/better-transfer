@@ -181,4 +181,27 @@ describe('Basic Upload Cases', function() {
       });
     });
   });
+
+
+  it('flakey upload interface', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+
+    app.post('/upload', transfer.middleware({filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
+      res.status(200);
+      next();
+    });
+
+    server = app.listen(3000, function () {
+      // flake out on 30% of the transfers
+      transfer.upload({flakiness: 0.3, url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+        assert.ok(!err);
+        checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
+          assert.ok(equal);
+          done();
+        });
+      });
+    });
+  });
 });
