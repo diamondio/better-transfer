@@ -116,4 +116,28 @@ describe('Basic Upload Cases', function() {
       });
     });
   });
+/*
+
+  it('check for chunk expiry', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+
+    // Chunks now expire in 10 ms
+    app.post('/upload', transfer.middleware({chunkExpiry: 0.01, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
+      res.status(200);
+      next();
+    });
+
+    var server = app.listen(3000, function () {
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1}, function (err) {
+        assert.ok(!err);
+        checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
+          assert.ok(equal);
+          server.close();
+          done();
+        });
+      });
+    });
+  });*/
 });
