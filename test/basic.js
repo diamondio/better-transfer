@@ -304,4 +304,27 @@ describe('Basic Upload Cases', function() {
       });
     });
   });
+
+  it('check progress', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+    //Squelch errors for this test:
+    var oldConsoleError = console.error;
+    console.error = () => {};
+
+    app.post('/upload', transfer.middleware({filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
+    });
+    var currentProgress = 0;
+    server = app.listen(3000, function () {
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 3, progress: function (progress) {
+        assert.ok(progress > currentProgress);
+        currentProgress = progress;
+      }}, function (err) {
+        assert.ok(currentProgress === 1);
+        done();
+      });
+    });
+  });
 });
