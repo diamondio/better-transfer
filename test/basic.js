@@ -81,7 +81,6 @@ describe('Basic Upload Cases', function() {
     });
   });
 
-
   it('upload one small file in many pieces', function (done) {
     var app = express();
     app.use(bodyParser.json());
@@ -102,7 +101,6 @@ describe('Basic Upload Cases', function() {
     });
   });
 
-
   it('upload one small file with smallest possible chunk size', function (done) {
     var app = express();
     app.use(bodyParser.json());
@@ -122,7 +120,6 @@ describe('Basic Upload Cases', function() {
       });
     });
   });
-
 
   it('failAfter options should work', function (done) {
     var app = express();
@@ -176,7 +173,6 @@ describe('Basic Upload Cases', function() {
       });
     });
   });
-
 
   it('flakey upload interface', function (done) {
     var app = express();
@@ -327,8 +323,6 @@ describe('Basic Upload Cases', function() {
       });
     });
   });
-
-
 
   it('check cancel', function (done) {
     var app = express();
