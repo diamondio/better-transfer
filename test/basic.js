@@ -152,7 +152,7 @@ describe('Basic Upload Cases', function() {
 
     server = app.listen(3000, function () {
       // Because the upload will fail after 3 chunks get uploaded, those chunks will be orphaned on the server, and the server should be able to clean them up
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 1}, function (err, uploadUUID) {
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 1}, function (err, body, uploadUUID) {
         setTimeout(function () {
           var pieceMap = transfer.getPieceMap();
           Object.keys(pieceMap[uploadUUID].pieces).forEach(function (chunkNum) {
