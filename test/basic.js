@@ -283,4 +283,25 @@ describe('Basic Upload Cases', function() {
       });
     });
   });
+
+  it('check max file size works', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+    //Squelch errors for this test:
+    var oldConsoleError = console.error;
+    console.error = () => {};
+
+    app.post('/upload', transfer.middleware({maxFileSize: 5, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
+    });
+
+    server = app.listen(3000, function () {
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 3}, function (err) {
+        assert.ok(err);
+        console.error = oldConsoleError;
+        done();
+      });
+    });
+  });
 });
