@@ -66,9 +66,8 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    app.post('/upload', transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
-      res.status(200);
-      next();
+    app.post('/upload', transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
     });
 
     server = app.listen(3000, function () {
@@ -88,9 +87,8 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    app.post('/upload', transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
-      res.status(200);
-      next();
+    app.post('/upload', transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
     });
 
     server = app.listen(3000, function () {
@@ -110,9 +108,8 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    app.post('/upload', transfer.middleware({maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
-      res.status(200);
-      next();
+    app.post('/upload', transfer.middleware({maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
     });
 
     server = app.listen(3000, function () {
@@ -132,9 +129,8 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    app.post('/upload', transfer.middleware({maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
-      res.status(200);
-      next();
+    app.post('/upload', transfer.middleware({maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
     });
 
     server = app.listen(3000, function () {
@@ -153,8 +149,8 @@ describe('Basic Upload Cases', function() {
     var testfile = uuid.v4();
 
     // Chunks now expire in 10 ms
-    app.post('/upload', transfer.middleware({chunkExpiry: 10, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
-      res.status(200);
+    app.post('/upload', transfer.middleware({chunkExpiry: 10, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
       next();
     });
 
@@ -188,9 +184,51 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    app.post('/upload', transfer.middleware({filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res, next) {
-      res.status(200);
-      next();
+    app.post('/upload', transfer.middleware({filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
+    });
+
+    server = app.listen(3000, function () {
+      // flake out on 30% of the transfers
+      transfer.upload({flakiness: 0.3, url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+        assert.ok(!err);
+        checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
+          assert.ok(equal);
+          done();
+        });
+      });
+    });
+  });
+
+
+  it('flakey server interface', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+
+    app.post('/upload', transfer.middleware({flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
+    });
+
+    server = app.listen(3000, function () {
+      // flake out on 30% of the transfers
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+        assert.ok(!err);
+        checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
+          assert.ok(equal);
+          done();
+        });
+      });
+    });
+  });
+
+  it('flakey upload and server interface', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+
+    app.post('/upload', transfer.middleware({flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
     });
 
     server = app.listen(3000, function () {
