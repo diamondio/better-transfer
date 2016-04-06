@@ -142,7 +142,6 @@ describe('Basic Upload Cases', function() {
     });
   });
 
-
   it('check for chunk expiry', function (done) {
     var app = express();
     app.use(bodyParser.json());
@@ -156,7 +155,7 @@ describe('Basic Upload Cases', function() {
 
     server = app.listen(3000, function () {
       // Because the upload will fail after 3 chunks get uploaded, those chunks will be orphaned on the server, and the server should be able to clean them up
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 3}, function (err, uploadUUID) {
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 1}, function (err, uploadUUID) {
         setTimeout(function () {
           var pieceMap = transfer.getPieceMap();
           Object.keys(pieceMap[uploadUUID].pieces).forEach(function (chunkNum) {
@@ -173,7 +172,7 @@ describe('Basic Upload Cases', function() {
             }
           });
           done();
-        }, 30);
+        }, 60);
       });
     });
   });
@@ -228,6 +227,48 @@ describe('Basic Upload Cases', function() {
     var testfile = uuid.v4();
 
     app.post('/upload', transfer.middleware({flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
+    });
+
+    server = app.listen(3000, function () {
+      // flake out on 30% of the transfers
+      transfer.upload({flakiness: 0.3, url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+        assert.ok(!err);
+        checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
+          assert.ok(equal);
+          done();
+        });
+      });
+    });
+  });
+
+  it('erroneous chunk expiration', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+
+    app.post('/upload', transfer.middleware({simulatedChunkExpiry: true, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
+    });
+
+    server = app.listen(3000, function () {
+      // flake out on 30% of the transfers
+      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+        assert.ok(!err);
+        checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
+          assert.ok(equal);
+          done();
+        });
+      });
+    });
+  });
+
+  it('erroneous chunk expiration plus server and upload flakiness', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+
+    app.post('/upload', transfer.middleware({simulatedChunkExpiry: true, flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
       return res.status(200).json({'message': 'ok'});
     });
 
