@@ -7,6 +7,8 @@ var transfer = require('../lib/transfer');
 var bodyParser = require('body-parser');
 var uuid = require('node-uuid');
 
+require('longjohn');
+
 var checkFilesEqual = function (file1, file2, cb) {
   var s1 = '';
   var s2 = '';
