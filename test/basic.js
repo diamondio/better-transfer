@@ -72,8 +72,8 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile'}, function (err) {
+    server = app.listen(3101, function () {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile'}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
@@ -91,10 +91,10 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
+    server = app.listen(3101, function () {
 
       var uploadAndCheck = function (testfile, cb) {
-        transfer.upload({url: 'http://localhost:3000/upload', filePath: testfile}, function (err) {
+        transfer.upload({url: 'http://localhost:3101/upload', filePath: testfile}, function (err) {
           assert.ok(!err);
           checkFilesEqual(testfile, '/tmp/' + path.basename(testfile), function (equal) {
             assert.ok(equal);
@@ -122,8 +122,8 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+    server = app.listen(3101, function () {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
@@ -142,8 +142,8 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1}, function (err) {
+    server = app.listen(3101, function () {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 1}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
@@ -162,8 +162,8 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 3}, function (err) {
+    server = app.listen(3101, function () {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 3}, function (err) {
         // make sure we hit an error
         assert.ok(err);
         done();
@@ -182,9 +182,9 @@ describe('Basic Upload Cases', function() {
       next();
     });
 
-    server = app.listen(3000, function () {
+    server = app.listen(3101, function () {
       // Because the upload will fail after 3 chunks get uploaded, those chunks will be orphaned on the server, and the server should be able to clean them up
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 1}, function (err, body, uploadUUID) {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 1, failAfter: 1}, function (err, body, uploadUUID) {
         setTimeout(function () {
           var pieceMap = transfer.getPieceMap();
           Object.keys(pieceMap[uploadUUID].pieces).forEach(function (chunkNum) {
@@ -215,9 +215,9 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
+    server = app.listen(3101, function () {
       // flake out on 30% of the transfers
-      transfer.upload({flakiness: 0.3, url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+      transfer.upload({flakiness: 0.3, url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
@@ -237,9 +237,9 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
+    server = app.listen(3101, function () {
       // flake out on 30% of the transfers
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
@@ -258,9 +258,9 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
+    server = app.listen(3101, function () {
       // flake out on 30% of the transfers
-      transfer.upload({flakiness: 0.3, url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+      transfer.upload({flakiness: 0.3, url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
@@ -279,9 +279,9 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
+    server = app.listen(3101, function () {
       // flake out on 30% of the transfers
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
@@ -300,9 +300,9 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
+    server = app.listen(3101, function () {
       // flake out on 30% of the transfers
-      transfer.upload({flakiness: 0.3, url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
+      transfer.upload({flakiness: 0.3, url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 2}, function (err) {
         assert.ok(!err);
         checkFilesEqual('./test/resources/testfile', '/tmp/' + testfile, function (equal) {
           assert.ok(equal);
@@ -324,8 +324,8 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
 
-    server = app.listen(3000, function () {
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 3}, function (err) {
+    server = app.listen(3101, function () {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 3}, function (err) {
         assert.ok(err);
         console.error = oldConsoleError;
         done();
@@ -345,8 +345,8 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
     var currentProgress = 0;
-    server = app.listen(3000, function () {
-      transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 3, progress: function (progress) {
+    server = app.listen(3101, function () {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 3, progress: function (progress) {
         assert.ok(progress > currentProgress);
         currentProgress = progress;
       }}, function (err) {
@@ -368,8 +368,8 @@ describe('Basic Upload Cases', function() {
       return res.status(200).json({'message': 'ok'});
     });
     var currentProgress = 0;
-    server = app.listen(3000, function () {
-      var uploader = transfer.upload({url: 'http://localhost:3000/upload', filePath: './test/resources/testfile', chunkSize: 1, progress: function (progress) {
+    server = app.listen(3101, function () {
+      var uploader = transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 1, progress: function (progress) {
         currentProgress = progress;
       }}, function (err) {
         assert.ok(err === 'upload_canceled');
