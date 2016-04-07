@@ -1,6 +1,8 @@
 var assert = require('assert');
+var async = require('async');
 var fs = require('fs-extra');
 var express = require('express');
+var path = require('path');
 var transfer = require('../lib/transfer');
 var bodyParser = require('body-parser');
 var uuid = require('node-uuid');
@@ -77,6 +79,36 @@ describe('Basic Upload Cases', function() {
           assert.ok(equal);
           done();
         });
+      });
+    });
+  });
+
+  it('upload several small files', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+
+    app.post('/upload', transfer.middleware({chunkExpiry: 0, filePath: (req, filename, cb) => cb(null, `/tmp/` + path.basename(filename))}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
+    });
+
+    server = app.listen(3000, function () {
+
+      var uploadAndCheck = function (testfile, cb) {
+        transfer.upload({url: 'http://localhost:3000/upload', filePath: testfile}, function (err) {
+          assert.ok(!err);
+          checkFilesEqual(testfile, '/tmp/' + path.basename(testfile), function (equal) {
+            assert.ok(equal);
+            cb();
+          });
+        });
+      }
+      async.parallel([
+        uploadAndCheck.bind(null, './test/resources/testfile'),
+        uploadAndCheck.bind(null, './test/resources/testfile2'),
+        uploadAndCheck.bind(null, './test/resources/testfile3'),
+      ], function (err) {
+        assert.ok(!err);
+        done();
       });
     });
   });
