@@ -65,6 +65,26 @@ describe('Basic Upload Cases', function() {
     done();
   });
 
+  it('upload one empty file', function (done) {
+    var app = express();
+    app.use(bodyParser.json());
+    var testfile = uuid.v4();
+
+    app.post('/upload', transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)}), function (req, res) {
+      return res.status(200).json({'message': 'ok'});
+    });
+
+    server = app.listen(3101, function () {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/emptyFile.txt'}, function (err) {
+        assert.ok(!err);
+        checkFilesEqual('./test/resources/emptyFile.txt', '/tmp/' + testfile, function (equal) {
+          assert.ok(equal);
+          done();
+        });
+      });
+    });
+  });
+
   it('upload one small file', function (done) {
     var app = express();
     app.use(bodyParser.json());

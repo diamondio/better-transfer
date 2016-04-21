@@ -1,6 +1,6 @@
 {
   "name": "better-transfer",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Easier file transfer between node servers",
   "main": "lib/transfer.js",
   "repository": {
