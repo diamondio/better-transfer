@@ -54,8 +54,7 @@ var checkFilesEqual = function (file1, file2, cb) {
   });
 }
 
-
-describe('Basic Upload Cases', function() {
+function defineTests(storeOpts) {
   var server = null;
 
   beforeEach(function (done){
@@ -73,7 +72,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    var middleware = new transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -95,7 +94,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    var middleware = new transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -116,7 +115,7 @@ describe('Basic Upload Cases', function() {
     var app = express();
     app.use(bodyParser.json());
 
-    var middleware = new transfer.middleware({chunkExpiry: 0, filePath: (req, filename, cb) => cb(null, `/tmp/` + path.basename(filename))});
+    var middleware = new transfer.middleware({store: storeOpts, chunkExpiry: 0, filePath: (req, filename, cb) => cb(null, `/tmp/` + path.basename(filename))});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -149,7 +148,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    var middleware = new transfer.middleware({chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, chunkExpiry: 0, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -171,7 +170,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    var middleware = new transfer.middleware({maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -193,7 +192,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    var middleware = new transfer.middleware({maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, maxFileSize: 1000, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -213,7 +212,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    var middleware = new transfer.middleware({filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -237,7 +236,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    var middleware = new transfer.middleware({flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -260,7 +259,7 @@ describe('Basic Upload Cases', function() {
     app.use(bodyParser.json());
     var testfile = uuid.v4();
 
-    var middleware = new transfer.middleware({flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -286,7 +285,7 @@ describe('Basic Upload Cases', function() {
     var oldConsoleError = console.error;
     console.error = () => {};
 
-    var middleware = new transfer.middleware({simulatedChunkExpiry: true, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, simulatedChunkExpiry: true, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -313,7 +312,7 @@ describe('Basic Upload Cases', function() {
     var oldConsoleError = console.error;
     console.error = () => {};
 
-    var middleware = new transfer.middleware({simulatedChunkExpiry: true, flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, simulatedChunkExpiry: true, flakiness: 0.3, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -340,7 +339,7 @@ describe('Basic Upload Cases', function() {
     var oldConsoleError = console.error;
     console.error = () => {};
 
-    var middleware = new transfer.middleware({maxFileSize: 5, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, maxFileSize: 5, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -363,7 +362,7 @@ describe('Basic Upload Cases', function() {
     var oldConsoleError = console.error;
     console.error = () => {};
 
-    var middleware = new transfer.middleware({filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -388,7 +387,7 @@ describe('Basic Upload Cases', function() {
     var oldConsoleError = console.error;
     console.error = () => {};
 
-    var middleware = new transfer.middleware({filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
+    var middleware = new transfer.middleware({store: storeOpts, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
     app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
@@ -407,4 +406,13 @@ describe('Basic Upload Cases', function() {
       uploader.cancel();
     });
   });
+}
+
+
+describe('Memory Store Tests', function () {
+  defineTests({'type': 'memory'});
+});
+
+describe('Redis Store Tests', function () {
+  defineTests({'type': 'redis', 'url': 'redis://localhost:6379'});
 });

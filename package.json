@@ -20,7 +20,11 @@
     "url": "https://github.com/diamondio/better-transfer/issues"
   },
   "homepage": "https://github.com/diamondio/better-transfer",
-  "devDependencies": {},
+  "devDependencies": {
+    "node-redis-lock": "^1.0.0",
+    "node-redis-lock-diamond": "^2.0.0",
+    "redis": "^2.6.1"
+  },
   "dependencies": {
     "async": "^1.5.2",
     "better-queue": "^3.3.0",
