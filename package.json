@@ -29,6 +29,7 @@
     "express": "^4.13.4",
     "extend": "^3.0.0",
     "fs-extra": "^0.26.7",
+    "lodash": "^4.13.1",
     "longjohn": "^0.2.11",
     "md5-file": "^2.0.4",
     "multer": "^1.1.0",
