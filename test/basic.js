@@ -341,13 +341,21 @@ function defineTests(storeOpts) {
 
     var middleware = new transfer.middleware({store: storeOpts, maxFileSize: 5, filePath: (req, filename, cb) => cb(null, `/tmp/` + testfile)});
 
-    app.post('/upload', middleware.getMiddlewareFunction(), function (req, res) {
+    var count = 0;
+
+    var counterMiddleware = function (req, res, next) {
+      count++;
+      next();
+    };
+
+    app.post('/upload', counterMiddleware, middleware.getMiddlewareFunction(), function (req, res) {
       return res.status(200).json({'message': 'ok'});
     });
 
     server = app.listen(3101, function () {
-      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 3}, function (err) {
+      transfer.upload({url: 'http://localhost:3101/upload', filePath: './test/resources/testfile', chunkSize: 3, numParallel: 1}, function (err) {
         assert.ok(err);
+        assert.equal(count, 1);
         console.error = oldConsoleError;
         done();
       });
