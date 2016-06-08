@@ -20,6 +20,10 @@ RedisStore.prototype.connect = function (cb) {
   self._client = redis.createClient({
     url: self.opts.url,
   });
+
+  self._client.on('error', function (err) {
+    console.error('better-transfer RedisStore error: ', err);
+  });
 }
 
 RedisStore.prototype.close = function (cb) {
