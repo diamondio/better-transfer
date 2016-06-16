@@ -24,6 +24,8 @@ RedisStore.prototype.connect = function (cb) {
   self._client.on('error', function (err) {
     console.error('better-transfer RedisStore error: ', err);
   });
+
+  self.lock = new redisLock({namespace: ''}, self._client);
 }
 
 RedisStore.prototype.close = function (cb) {
@@ -59,7 +61,7 @@ RedisStore.prototype.getChunkExpiry = function (uuid, cb) {
 
 RedisStore.prototype.setPiecePath = function (uuid, pieceNum, path, cb) {
   var self = this;
-  var lock = new redisLock({namespace: ''}, self._client);
+  var lock = self.lock;
   lock.acquire(uuid, self.lockTTL, self.lockRetries, self.lockRetryDelay, function (err) {
     if (err) return cb(err)
     self._client.get(uuid + 'pieces' + pieceNum + 'path', function (err, origPath) {
@@ -107,7 +109,7 @@ RedisStore.prototype.getAllPieces = function (uuid, cb) {
   var self = this;
   var pieces = {};
 
-  var lock = new redisLock({namespace: ''}, self._client);
+  var lock = self.lock;
   lock.acquire(uuid + 'pieces', self.lockTTL, self.lockRetries, self.lockRetryDelay, function (err) {
     if (err) return cb(err);
     self._client.get(uuid + 'pieceList', function (err, val) {
@@ -134,7 +136,7 @@ RedisStore.prototype.getAllPieces = function (uuid, cb) {
 
 RedisStore.prototype.expireTransfer = function (uuid, cb) {
   var self = this;
-  var lock = new redisLock({namespace: ''}, self._client);
+  var lock = self.lock;
   lock.acquire(uuid, self.lockTTL, self.lockRetries, self.lockRetryDelay, function (err) {
     if (err) return cb(err);
     self.getAllPieces(uuid, function (err, pieces) {
