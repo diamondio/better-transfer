@@ -55,7 +55,7 @@ RedisStore.prototype.getChunkExpiry = function (uuid, cb) {
   var self = this;
   self._client.get(uuid + 'expiryTimeout', function (err, timeoutString) {
     if (err) return cb(err);
-    cb(null, parseInt(dateString));
+    cb(null, parseInt(timeoutString));
   });
 }
 
